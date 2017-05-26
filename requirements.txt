@@ -1,0 +1,16 @@
+Automat==0.6.0
+CouchDB==1.1
+PyYAML==3.12
+Twisted==17.1.0
+argh==0.26.2
+argparse==1.2.1
+attrs==17.2.0
+autobahn==17.5.1
+constantly==15.1.0
+incremental==17.5.0
+pathtools==0.1.2
+six==1.10.0
+txaio==2.7.1
+watchdog==0.8.3
+wsgiref==0.1.2
+zope.interface==4.4.1
