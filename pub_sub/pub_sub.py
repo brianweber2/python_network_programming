@@ -37,20 +37,23 @@ from collections import defaultdict
 from twisted.internet import reactor
 from twisted.python import log
 from twisted.internet.endpoints import TCP4ClientEndpoint, connectProtocol
-from twisted.internet.protocol import Protocol, Factory, ClientFactory
+from twisted.internet.protocol import Protocol, ServerFactory
 
 
 class PubSubProtocol(Protocol):
 
-    def __init__(self, topics):
+    def __init__(self, factory, topics):
+        self.factory = factory
         self.topics = topics
         self.subscribed_topic = None
 
     def connectionLost(self, reason):
+        print("Connection lost: {}".format(reason))
         if self.subscribed_topic:
             self.topics[self.subscribed_topic].remove(self)
 
     def dataReceived(self, data):
+        print("Data received: {}".format(data))
         try:
             request = json.loads(data)
         except ValueError:
@@ -65,6 +68,7 @@ class PubSubProtocol(Protocol):
             self.handle_publish(request['topic'], request['data'])
 
     def handle_subscribe(self, topic):
+        print("Subscribed to topic: {}".format(topic))
         self.topics[topic].add(self)
         self.subscribed_topic = topic
 
@@ -73,9 +77,10 @@ class PubSubProtocol(Protocol):
 
         for protocol in self.topics[topic]:
             protocol.transport.write(request)
+        print("Publish sent for topic: {}".format(topic))
 
 
-class PubSubFactory(Factory):
+class PubSubFactory(ServerFactory):
 
     def __init__(self):
         self.topics = defaultdict(set)
