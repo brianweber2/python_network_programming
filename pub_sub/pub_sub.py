@@ -42,8 +42,7 @@ from twisted.internet.protocol import Protocol, ServerFactory
 
 class PubSubProtocol(Protocol):
 
-    def __init__(self, factory, topics):
-        self.factory = factory
+    def __init__(self, topics):
         self.topics = topics
         self.subscribed_topic = None
 
