@@ -1,21 +1,13 @@
-# Copyright (c) Twisted Matrix Laboratories.
-# See LICENSE for details.
-
 """
-Server-side of an example for sending file descriptors between processes over
-UNIX sockets.  This server accepts connections on a UNIX socket and sends one
-file descriptor to them, along with the name of the file it is associated with.
+To run this example, run this program with one argument: a path giving a UNIX
+socket to listen on (must not exist).  For example:
 
-To run this example, run this program with two arguments: a path giving a UNIX
-socket to listen on (must not exist) and a path to a file to send to clients
-which connect (must exist).  For example:
-
-    $ python sendfd.py /tmp/sendfd.sock /etc/motd
+    $ python server.py /tmp/test.sock
 
 It will listen for client connections until stopped (eg, using Control-C).  Most
 interesting behavior happens on the client side.
 
-See recvfd.py for the client side of this example.
+See client.py for the client side of this example.
 """
 
 import sys
@@ -25,7 +17,7 @@ from twisted.python.filepath import FilePath
 from twisted.internet.protocol import Factory, Protocol
 from twisted.internet import reactor
 
-class SendFDProtocol(Protocol):
+class MyProtocol(Protocol):
     def connectionMade(self):
         print("Connection made on Server side.")
 
@@ -42,6 +34,11 @@ class SendFDProtocol(Protocol):
             self.timeoutCall = None
 
 
+class MyFactory(Factory):
+    def buildProtocol(self, addr):
+        return MyProtocol()
+
+
 def main():
     address = FilePath(sys.argv[1])
 
@@ -50,10 +47,10 @@ def main():
 
     startLogging(sys.stdout)
 
-    serverFactory = Factory()
-    serverFactory.protocol = SendFDProtocol
+    # serverFactory = Factory()
+    # serverFactory.protocol = SendFDProtocol
 
-    port = reactor.listenUNIX(address.path, serverFactory)
+    reactor.listenUNIX(address.path, MyFactory())
     reactor.run()
 
 if __name__ == '__main__':

@@ -1,18 +1,13 @@
-# Copyright (c) Twisted Matrix Laboratories.
-# See LICENSE for details.
-
 """
-Client-side of an example for sending file descriptors between processes over
-UNIX sockets.  This client connects to a server listening on a UNIX socket and
-waits for one file descriptor to arrive over the connection.  It displays the
-name of the file and the first 80 bytes it contains, then exits.
+Client-side of an example for UNIX sockets.  This client connects to a server
+listening on a UNIX socket.
 
-To runb this example, run this program with one argument: a path giving the UNIX
+To run this example, run this program with one argument: a path giving the UNIX
 socket the server side of this example is already listening on.  For example:
 
-    $ python recvfd.py /tmp/sendfd.sock
+    $ python client.py /tmp/test.sock
 
-See sendfd.py for the server side of this example.
+See server.py for the server side of this example.
 """
 import os, sys
 
@@ -23,7 +18,7 @@ from twisted.internet.protocol import Protocol, Factory
 from twisted.internet.endpoints import UNIXClientEndpoint
 from twisted.internet import reactor
 
-class ReceiveFDProtocol(Protocol):
+class ClientProtocol(Protocol):
 
     def __init__(self):
         self.whenDisconnected = Deferred()
@@ -36,13 +31,18 @@ class ReceiveFDProtocol(Protocol):
         self.whenDisconnected.callback(None)
 
 
+class ClientFactory(Factory):
+    def buildProtocol(self, addr):
+        return ClientProtocol()
+
+
 def main():
     address = FilePath(sys.argv[1])
 
     startLogging(sys.stdout)
 
-    factory = Factory()
-    factory.protocol = ReceiveFDProtocol
+    factory = ClientFactory()
+    # factory.protocol = ReceiveFDProtocol
     factory.quiet = True
 
     endpoint = UNIXClientEndpoint(reactor, address.path)
