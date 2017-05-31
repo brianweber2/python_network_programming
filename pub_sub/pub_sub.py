@@ -88,6 +88,7 @@ class PubSubFactory(ServerFactory):
         return PubSubProtocol(self.topics)
 
 
+###### Client code ######
 class PublisherProtocol(Protocol):
     """
     Publish protocol for sending data to client, i.e. front-end web GUI.
